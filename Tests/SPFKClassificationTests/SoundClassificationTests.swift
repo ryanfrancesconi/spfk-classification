@@ -19,8 +19,6 @@ final class SoundClassificationTests: TestCaseModel {
         #expect(identifiers.contains("music"))
         #expect(identifiers.contains("tabla"))
         #expect(identifiers.contains("drum"))
-
-        Log.debug(results)
     }
 
     // if a file is too short then there isn't enough chance for the analysis to succeed, so loop it a few time
@@ -32,8 +30,6 @@ final class SoundClassificationTests: TestCaseModel {
 
         let results = try await SoundClassification.analyze(url: tmp, overlapFactor: 0.5, minimumConfidence: 0.1) ?? []
         let identifiers = results.map { $0.identifier }
-
-        Log.debug(url.path, "=", results)
 
         #expect(identifiers.contains("music"))
         #expect(identifiers.contains("cowbell"))

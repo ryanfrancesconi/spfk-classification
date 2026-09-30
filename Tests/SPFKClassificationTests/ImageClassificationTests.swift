@@ -21,8 +21,6 @@ final class ImageClassificationTests: TestCaseModel {
         #expect(identifiers.contains("plant"))
         #expect(identifiers.contains("branch"))
         #expect(identifiers.contains("foliage"))
-
-        Log.debug(results)
     }
 
     @Test func highConfidenceFiltersResults() async throws {

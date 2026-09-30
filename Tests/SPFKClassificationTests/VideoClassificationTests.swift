@@ -35,8 +35,6 @@ final class VideoClassificationTests: TestCaseModel {
         // From the sharksandwich segment (verified real labels: an illustrated album cover).
         #expect(identifiers.contains("art"))
         #expect(identifiers.contains("illustrations"))
-
-        Log.debug(results)
     }
 
     @Test func stepLongerThanDurationSamplesOneFrame() async throws {
