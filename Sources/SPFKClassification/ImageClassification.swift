@@ -11,8 +11,7 @@ public enum ImageClassification {
     /// sound classifier's default does not transfer, the two being calibrated independently.
     public static let defaultConfidence: Double = 0.6
 
-    /// The identifiers Vision's built-in classifier can currently produce (1303 as of this
-    /// writing -- confirmed against real framework output, not a fixed/guessed count).
+    /// The identifiers Vision's built-in classifier can currently produce.
     public static func knownClassifications() throws -> [String] {
         try VNClassifyImageRequest().supportedIdentifiers()
     }
