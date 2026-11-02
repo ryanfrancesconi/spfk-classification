@@ -4,8 +4,8 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fryanfrancesconi%2Fspfk-classification%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/ryanfrancesconi/spfk-classification)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fryanfrancesconi%2Fspfk-classification%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/ryanfrancesconi/spfk-classification)
 
-A capability an app embeds: naming what is in a sound, an image or a video, as identifiers with
-confidences, so they can become keywords. Sound goes through Apple's
+Names what is in a sound, an image or a video, as identifiers with confidences, so they can
+become keywords. Sound goes through Apple's
 [SoundAnalysis](https://developer.apple.com/documentation/soundanalysis), images and video through
 [Vision](https://developer.apple.com/documentation/vision), and either accepts a custom Core ML model
 in place of the built-in classifier.
