@@ -47,6 +47,25 @@ struct KeywordDetectionTests {
         #expect(keywords.contains("Plant"))
     }
 
+    @Test func videoKeywordsComeFromItsSoundAndItsFrames() async throws {
+        let videoURL = try await StillVideoFixture.make(
+            showing: [TestBundleResources.shared.songbird],
+            segmentDuration: 4.0,
+            soundtrack: TestBundleResources.shared.tabla_wav
+        )
+        defer { try? FileManager.default.removeItem(at: videoURL) }
+
+        let keywords = try await KeywordDetection.detect(
+            url: videoURL,
+            source: .video,
+            existingKeywords: [],
+            options: KeywordDetectionOptions(minimumConfidence: 0.1, videoSamplingStep: 1.0)
+        )
+
+        #expect(keywords.contains("Tabla"))
+        #expect(keywords.contains("Plant"))
+    }
+
     /// The sound classifier will not open Matroska; the frames come from the demuxer.
     @Test func matroskaVideoReturnsFrameKeywords() async throws {
         let keywords = try await KeywordDetection.detect(
