@@ -12,11 +12,8 @@ final class VideoClassificationTests: TestCaseModel {
     /// and that it produces results where an audio-only classification flow would produce
     /// none (this fixture never adds an audio track at all).
     @Test func analyzeVideoAggregatesAcrossSegments() async throws {
-        let songbird = try VideoTestFixture.loadImage(at: TestBundleResources.shared.songbird)
-        let sharksandwich = try VideoTestFixture.loadImage(at: TestBundleResources.shared.sharksandwich)
-
-        let videoURL = try await VideoTestFixture.makeMultiSegmentTestVideo(
-            segments: [songbird, sharksandwich],
+        let videoURL = try await StillVideoFixture.make(
+            showing: [TestBundleResources.shared.songbird, TestBundleResources.shared.sharksandwich],
             segmentDuration: 4.0
         )
         defer { try? FileManager.default.removeItem(at: videoURL) }
@@ -38,10 +35,8 @@ final class VideoClassificationTests: TestCaseModel {
     }
 
     @Test func stepLongerThanDurationSamplesOneFrame() async throws {
-        let songbird = try VideoTestFixture.loadImage(at: TestBundleResources.shared.songbird)
-
-        let videoURL = try await VideoTestFixture.makeMultiSegmentTestVideo(
-            segments: [songbird],
+        let videoURL = try await StillVideoFixture.make(
+            showing: [TestBundleResources.shared.songbird],
             segmentDuration: 2.0
         )
         defer { try? FileManager.default.removeItem(at: videoURL) }
@@ -58,11 +53,20 @@ final class VideoClassificationTests: TestCaseModel {
         #expect(results.map { $0.identifier }.contains("plant"))
     }
 
-    @Test func invalidSamplingStepThrows() async throws {
-        let songbird = try VideoTestFixture.loadImage(at: TestBundleResources.shared.songbird)
+    /// AVFoundation will not open a Matroska file; the frames come from the demuxer.
+    @Test(.tags(.keywordTools)) func analyzeVideoReadsMatroska() async throws {
+        let results = try await ImageClassification.analyzeVideo(
+            url: TestBundleResources.shared.sample_mkv,
+            sampling: .fixedInterval(step: 0.5),
+            minimumConfidence: 0.1
+        ) ?? []
 
-        let videoURL = try await VideoTestFixture.makeMultiSegmentTestVideo(
-            segments: [songbird],
+        #expect(!results.isEmpty)
+    }
+
+    @Test func invalidSamplingStepThrows() async throws {
+        let videoURL = try await StillVideoFixture.make(
+            showing: [TestBundleResources.shared.songbird],
             segmentDuration: 1.0
         )
         defer { try? FileManager.default.removeItem(at: videoURL) }

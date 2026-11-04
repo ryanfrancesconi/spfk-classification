@@ -16,6 +16,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ryanfrancesconi/spfk-base", from: "1.2.3"),
         .package(url: "https://github.com/ryanfrancesconi/spfk-video", from: "1.3.0"),
+        .package(url: "https://github.com/ryanfrancesconi/spfk-matroska", from: "1.6.0"),
         .package(url: "https://github.com/ryanfrancesconi/spfk-audio-base", from: "1.6.1"),
         .package(url: "https://github.com/ryanfrancesconi/spfk-testing", from: "1.1.1"),
     ],
@@ -25,6 +26,7 @@ let package = Package(
             dependencies: [
                 .product(name: "SPFKBase", package: "spfk-base"),
                 .product(name: "SPFKVideo", package: "spfk-video"),
+                .product(name: "SPFKMatroska", package: "spfk-matroska"),
             ]
         ),
         .testTarget(

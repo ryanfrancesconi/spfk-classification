@@ -3,6 +3,7 @@
 import CoreGraphics
 import CoreML
 import Foundation
+import SPFKMatroska
 import SPFKVideo
 import Vision
 
@@ -125,15 +126,17 @@ public enum ImageClassification {
     /// is enforced**: one classification call per sampled frame, so a caller exposing the interval
     /// has to bound the cost itself.
     ///
+    /// Reads any container `spfk-matroska` reads, including the ones AVFoundation will not open.
+    ///
     /// - Parameters:
-    ///   - url: File URL of the video asset.
-    ///   - sampling: How frames are chosen from the video's duration.
+    ///   - url: File URL of the video.
+    ///   - sampling: How frames are chosen from the video track's duration.
     ///   - minimumConfidence: Classifications below this confidence are excluded from the result.
     /// - Returns: Classifications aggregated across all sampled frames -- the highest
     ///   confidence seen for each identifier, at or above `minimumConfidence`, sorted by
     ///   descending confidence. `nil` if no frames could be sampled or classified.
-    /// - Throws: If the sampling step isn't positive, the video asset isn't playable or has no
-    ///   video track, or classification itself fails.
+    /// - Throws: If the sampling step isn't positive, no reader finds a video track with a
+    ///   duration, or classification itself fails.
     public static func analyzeVideo(
         url: URL,
         sampling: SamplingStrategy,
@@ -142,7 +145,7 @@ public enum ImageClassification {
         let timestamps = try await sampleTimestamps(for: url, sampling: sampling)
         guard !timestamps.isEmpty else { return nil }
 
-        let frames = try await VideoFrameExtractor.frames(
+        let frames = await VideoFrameExtractor.framesForAnyContainer(
             from: url,
             at: timestamps,
             maximumSize: frameClassificationSize
@@ -172,7 +175,11 @@ public enum ImageClassification {
                 throw ImageClassificationError.invalidSamplingStep(step)
             }
 
-            let duration = try await VideoFrameExtractor.duration(of: url)
+            guard let duration = await VideoTrackReader.readAnyContainer(from: url).videoTrack?.duration,
+                  duration.isFinite
+            else {
+                throw VideoFrameExtractionError.assetNotPlayable(url)
+            }
             return Array(stride(from: 0, to: duration, by: step))
         }
     }
