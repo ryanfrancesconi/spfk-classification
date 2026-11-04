@@ -1,5 +1,6 @@
 // Copyright Ryan Francesconi. All Rights Reserved. Revision History at https://github.com/ryanfrancesconi/spfk-classification
 
+import AVFoundation
 import Foundation
 @preconcurrency import SoundAnalysis
 import SPFKBase
@@ -62,6 +63,8 @@ extension SoundClassification {
     ) async throws -> [SNClassification]? {
         request.overlapFactor = overlapFactor
 
+        try verifyDecodable(url: url)
+
         let analyzer = try SNAudioFileAnalyzer(url: url)
         let observer = SoundClassificationResultObserver(minimumConfidence: minimumConfidence)
         try analyzer.add(request, withObserver: observer)
@@ -87,5 +90,22 @@ extension SoundClassification {
         }
 
         return observer.classifications
+    }
+
+    /// Throws for a file whose audio opens but cannot be decoded, such as QDesign in an old `.mov`.
+    ///
+    /// `SNAudioFileAnalyzer` raises an Objective-C exception for one on its own queue, where nothing
+    /// can catch it; reading here raises it on this thread instead.
+    static func verifyDecodable(url: URL) throws {
+        try ExceptionTrap.withThrowing {
+            let file = try AVAudioFile(forReading: url)
+            _ = file.framePosition
+
+            let frameCount: AVAudioFrameCount = 1024
+            guard let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: frameCount) else {
+                throw NSError(description: "Couldn't allocate a buffer to read \(url.lastPathComponent)")
+            }
+            try file.read(into: buffer, frameCount: min(frameCount, AVAudioFrameCount(clamping: file.length)))
+        }
     }
 }
