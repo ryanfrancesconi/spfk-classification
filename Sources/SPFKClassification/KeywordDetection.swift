@@ -1,7 +1,9 @@
 // Copyright Ryan Francesconi. All Rights Reserved. Revision History at https://github.com/ryanfrancesconi/spfk-classification
 
 import Foundation
+import ImageIO
 import SPFKBase
+import UniformTypeIdentifiers
 
 /// What ``KeywordDetection`` classifies a file as.
 public enum KeywordDetectionSource: Sendable {
@@ -39,6 +41,18 @@ public enum KeywordDetection {
 
         return assemble(identifiers: identifiers, existingKeywords: existingKeywords, options: options)
     }
+
+    /// Whether ``detect(url:source:existingKeywords:options:)`` can read the file, from its
+    /// extension. An image must be a format ImageIO decodes, since that is what Vision reads: SVG
+    /// is a `public.image` it cannot open.
+    public static func canDetect(url: URL, source: KeywordDetectionSource) -> Bool {
+        guard source == .image else { return true }
+        guard let type = UTType(filenameExtension: url.pathExtension) else { return false }
+
+        return imageIOReadableTypes.contains(type.identifier)
+    }
+
+    private static let imageIOReadableTypes = Set(CGImageSourceCopyTypeIdentifiers() as? [String] ?? [])
 
     static func assemble(
         identifiers: [String],

@@ -6,6 +6,19 @@ import Testing
 
 @Suite(.tags(.file, .keywordTools))
 struct KeywordDetectionTests {
+    /// Vision throws on an SVG URL, so one is refused before a run reaches it.
+    @Test func anImageFormatImageIOCannotReadCannotBeDetected() {
+        #expect(KeywordDetection.canDetect(url: URL(fileURLWithPath: "/tmp/a.jpg"), source: .image))
+        #expect(KeywordDetection.canDetect(url: URL(fileURLWithPath: "/tmp/a.HEIC"), source: .image))
+        #expect(KeywordDetection.canDetect(url: URL(fileURLWithPath: "/tmp/a.svg"), source: .image) == false)
+        #expect(KeywordDetection.canDetect(url: URL(fileURLWithPath: "/tmp/a"), source: .image) == false)
+    }
+
+    @Test func soundAndVideoAreNotGatedByFormat() {
+        #expect(KeywordDetection.canDetect(url: URL(fileURLWithPath: "/tmp/a.wav"), source: .audio))
+        #expect(KeywordDetection.canDetect(url: URL(fileURLWithPath: "/tmp/a.mkv"), source: .video))
+    }
+
     @Test func audioReturnsSoundKeywords() async throws {
         let keywords = try await KeywordDetection.detect(
             url: TestBundleResources.shared.tabla_wav,
