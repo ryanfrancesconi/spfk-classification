@@ -10,7 +10,7 @@ import Vision
 public enum ImageClassification {
     /// Default minimum confidence. Measured against real `VNClassifyImageRequest` output; the
     /// sound classifier's default does not transfer, the two being calibrated independently.
-    public static let defaultConfidence: Double = 0.6
+    public static let defaultConfidence: Double = 0.3
 
     /// The identifiers Vision's built-in classifier can currently produce.
     public static func knownClassifications() throws -> [String] {

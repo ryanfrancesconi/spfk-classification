@@ -7,6 +7,8 @@ import SPFKBase
 
 public enum SoundClassification {
     public static let defaultOverlap: Double = 0.5
+    /// Default minimum confidence. Measured against real `SNClassifySoundRequest` output; the
+    /// image classifier's default does not transfer, the two being calibrated independently.
     public static let defaultConfidence: Double = 0.6
 
     public static func knownClassificationsForVersion1() throws -> [String] {

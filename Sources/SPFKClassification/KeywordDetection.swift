@@ -59,7 +59,7 @@ public enum KeywordDetection {
     private static func soundIdentifiers(url: URL, options: KeywordDetectionOptions) async throws -> [String] {
         let classifications = try await SoundClassification.analyze(
             url: url,
-            minimumConfidence: options.minimumConfidence
+            minimumConfidence: options.soundConfidence
         )
         return classifications?.map(\.identifier) ?? []
     }
@@ -67,7 +67,7 @@ public enum KeywordDetection {
     private static func imageIdentifiers(url: URL, options: KeywordDetectionOptions) async throws -> [String] {
         guard let classifications = try await ImageClassification.analyze(
             url: url,
-            minimumConfidence: options.minimumConfidence
+            minimumConfidence: options.imageConfidence
         ) else {
             throw NSError(description: "Failed to classify \(url.lastPathComponent)")
         }
@@ -78,7 +78,7 @@ public enum KeywordDetection {
         guard let classifications = try await ImageClassification.analyzeVideo(
             url: url,
             sampling: .fixedInterval(step: options.videoSamplingStep),
-            minimumConfidence: options.minimumConfidence
+            minimumConfidence: options.imageConfidence
         ) else {
             throw NSError(description: "Failed to classify the frames of \(url.lastPathComponent)")
         }

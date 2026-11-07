@@ -41,7 +41,7 @@ struct KeywordDetectionTests {
             url: videoURL,
             source: .video,
             existingKeywords: [],
-            options: KeywordDetectionOptions(minimumConfidence: 0.1, videoSamplingStep: 1.0)
+            options: KeywordDetectionOptions(imageConfidence: 0.1, soundConfidence: 0.1, videoSamplingStep: 1.0)
         )
 
         #expect(keywords.contains("Plant"))
@@ -59,11 +59,50 @@ struct KeywordDetectionTests {
             url: videoURL,
             source: .video,
             existingKeywords: [],
-            options: KeywordDetectionOptions(minimumConfidence: 0.1, videoSamplingStep: 1.0)
+            options: KeywordDetectionOptions(imageConfidence: 0.1, soundConfidence: 0.1, videoSamplingStep: 1.0)
         )
 
         #expect(keywords.contains("Tabla"))
         #expect(keywords.contains("Plant"))
+    }
+
+    @Test func videoSoundtrackUsesTheSoundConfidence() async throws {
+        let keywords = try await soundAndFramesKeywords(imageConfidence: 1.01, soundConfidence: 0.1)
+
+        #expect(keywords.contains("Tabla"))
+        #expect(!keywords.contains("Plant"))
+    }
+
+    @Test func videoFramesUseTheImageConfidence() async throws {
+        let keywords = try await soundAndFramesKeywords(imageConfidence: 0.1, soundConfidence: 1.01)
+
+        #expect(keywords.contains("Plant"))
+        #expect(!keywords.contains("Tabla"))
+    }
+
+    private func soundAndFramesKeywords(imageConfidence: Double, soundConfidence: Double) async throws -> [String] {
+        let videoURL = try await StillVideoFixture.make(
+            showing: [TestBundleResources.shared.songbird],
+            segmentDuration: 4.0,
+            soundtrack: TestBundleResources.shared.tabla_wav
+        )
+        defer { try? FileManager.default.removeItem(at: videoURL) }
+
+        return try await KeywordDetection.detect(
+            url: videoURL,
+            source: .video,
+            existingKeywords: [],
+            options: KeywordDetectionOptions(
+                imageConfidence: imageConfidence,
+                soundConfidence: soundConfidence,
+                videoSamplingStep: 1.0
+            )
+        )
+    }
+
+    @Test func defaultOptionsTakeEachClassifiersDefault() {
+        #expect(KeywordDetectionOptions.default.imageConfidence == ImageClassification.defaultConfidence)
+        #expect(KeywordDetectionOptions.default.soundConfidence == SoundClassification.defaultConfidence)
     }
 
     /// The sound classifier will not open Matroska; the frames come from the demuxer.
@@ -72,7 +111,7 @@ struct KeywordDetectionTests {
             url: TestBundleResources.shared.sample_mkv,
             source: .video,
             existingKeywords: [],
-            options: KeywordDetectionOptions(minimumConfidence: 0.1, videoSamplingStep: 0.5)
+            options: KeywordDetectionOptions(imageConfidence: 0.1, soundConfidence: 0.1, videoSamplingStep: 0.5)
         )
 
         #expect(!keywords.isEmpty)
