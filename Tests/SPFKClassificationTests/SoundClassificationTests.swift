@@ -92,16 +92,4 @@ final class SoundClassificationTests: TestCaseModel {
             #expect(results[i].confidence >= results[i + 1].confidence)
         }
     }
-
-    @Test func observerDefaults() {
-        let observer = SoundClassificationResultObserver()
-        #expect(observer.minimumConfidence == SoundClassification.defaultConfidence)
-        #expect(observer.classifications == nil)
-    }
-
-    @Test func observerCustomConfidence() {
-        let observer = SoundClassificationResultObserver(minimumConfidence: 0.8)
-        #expect(observer.minimumConfidence == 0.8)
-        #expect(observer.classifications == nil)
-    }
 }

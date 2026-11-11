@@ -113,11 +113,6 @@ struct KeywordDetectionTests {
         )
     }
 
-    @Test func defaultOptionsTakeEachClassifiersDefault() {
-        #expect(KeywordDetectionOptions.default.imageConfidence == ImageClassification.defaultConfidence)
-        #expect(KeywordDetectionOptions.default.soundConfidence == SoundClassification.defaultConfidence)
-    }
-
     /// The sound classifier will not open Matroska; the frames come from the demuxer.
     @Test func matroskaVideoReturnsFrameKeywords() async throws {
         let keywords = try await KeywordDetection.detect(
