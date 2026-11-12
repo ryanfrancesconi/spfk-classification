@@ -11,6 +11,34 @@ public enum KeywordAssignment: Int, Sendable, Equatable {
     case replace = 1
 }
 
+extension KeywordAssignment {
+    /// The keywords after merging a tool's result into a list the user may have edited meanwhile.
+    ///
+    /// What the tool added (`result` − `snapshot`) is appended to `current`, and what it removed
+    /// (`snapshot` − `result`) is dropped from it, so keywords the user added or removed mid-run
+    /// keep their edit. Comparison ignores case; duplicates keep their first spelling.
+    public static func mergedKeywords(result: [String], snapshot: [String], current: [String]) -> [String] {
+        let snapshotKeys = Set(snapshot.map { $0.lowercased() })
+        let resultKeys = Set(result.map { $0.lowercased() })
+
+        let removed = snapshotKeys.subtracting(resultKeys)
+        let added = result.filter { !snapshotKeys.contains($0.lowercased()) }
+
+        var seen = Set<String>()
+        var merged: [String] = []
+
+        for keyword in current where !removed.contains(keyword.lowercased()) {
+            if seen.insert(keyword.lowercased()).inserted { merged.append(keyword) }
+        }
+
+        for keyword in added where seen.insert(keyword.lowercased()).inserted {
+            merged.append(keyword)
+        }
+
+        return merged
+    }
+}
+
 /// How ``OrganizeKeywordsOptions/organize(_:)`` rewrites the letter case of each keyword.
 /// Raw values are persisted.
 public enum KeywordCase: Int, Sendable, Equatable {
