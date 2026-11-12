@@ -87,4 +87,21 @@ final class ImageClassificationTests: TestCaseModel {
         #expect(list.contains("bird"))
         #expect(list.contains("branch"))
     }
+
+    /// More classifications at once than there are cores. Ungated, this many hang with none complete.
+    @Test func moreClassificationsThanCoresAllFinish() async throws {
+        let count = ProcessInfo.processInfo.activeProcessorCount + 2
+
+        let finished = try await withThrowingTaskGroup(of: Bool.self) { group in
+            for _ in 0 ..< count {
+                group.addTask {
+                    try await ImageClassification.analyze(url: TestBundleResources.shared.songbird) != nil
+                }
+            }
+
+            return try await group.reduce(0) { $0 + ($1 ? 1 : 0) }
+        }
+
+        #expect(finished == count)
+    }
 }

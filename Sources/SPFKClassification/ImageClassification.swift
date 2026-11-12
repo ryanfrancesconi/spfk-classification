@@ -3,6 +3,7 @@
 import CoreGraphics
 import CoreML
 import Foundation
+import SPFKBase
 import SPFKMatroska
 import SPFKVideo
 import Vision
@@ -33,7 +34,7 @@ public enum ImageClassification {
         try Task.checkCancellation()
 
         let handler = VNImageRequestHandler(url: url, options: [:])
-        return try classify(with: handler, minimumConfidence: minimumConfidence)
+        return try await classify(with: handler, minimumConfidence: minimumConfidence)
     }
 
     /// Classifies an in-memory image using Vision's built-in image classifier.
@@ -53,15 +54,20 @@ public enum ImageClassification {
         try Task.checkCancellation()
 
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        return try classify(with: handler, minimumConfidence: minimumConfidence)
+        return try await classify(with: handler, minimumConfidence: minimumConfidence)
     }
 
+    /// Waits for a ``BlockingCallLimiter`` slot, since `perform` blocks its thread.
     private static func classify(
         with handler: VNImageRequestHandler,
         minimumConfidence: Double
-    ) throws -> [VNClassificationObservation]? {
+    ) async throws -> [VNClassificationObservation]? {
         let request = VNClassifyImageRequest()
-        try handler.perform([request])
+
+        try await BlockingCallLimiter.shared.run {
+            try Task.checkCancellation()
+            try handler.perform([request])
+        }
 
         guard let results = request.results else {
             return nil
@@ -96,7 +102,11 @@ public enum ImageClassification {
         let request = VNCoreMLRequest(model: coreMLModel)
 
         let handler = VNImageRequestHandler(url: url, options: [:])
-        try handler.perform([request])
+
+        try await BlockingCallLimiter.shared.run {
+            try Task.checkCancellation()
+            try handler.perform([request])
+        }
 
         guard let results = request.results else {
             return nil
