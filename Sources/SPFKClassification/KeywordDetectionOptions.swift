@@ -12,7 +12,7 @@ public struct KeywordDetectionOptions: Sendable, Equatable {
 
     public var assignment: KeywordAssignment
 
-    /// How the resulting keyword list is cleaned up — the same choices Organize Keywords offers.
+    /// How the resulting keyword list is cleaned up - the same choices Organize Keywords offers.
     public var organize: OrganizeKeywordsOptions
 
     /// Seconds between the frames sampled from a video. Unused for audio and images.

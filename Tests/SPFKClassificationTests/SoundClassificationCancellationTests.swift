@@ -16,7 +16,7 @@ struct SoundClassificationCancellationTests {
     func cancellationIsNotAnAnalysisFailure() async throws {
         let url = TestBundleResources.shared.tabla_wav
 
-        // The result is discarded rather than returned — `SNClassification` is not `Sendable`.
+        // The result is discarded rather than returned - `SNClassification` is not `Sendable`.
         let task = Task {
             _ = try await SoundClassification.analyze(url: url)
         }
